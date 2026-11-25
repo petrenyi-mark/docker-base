@@ -2,3 +2,7 @@
 
 .Changes
 * added https://docs.renovatebot.com/[Renovate] for automatic dependency updates.
+* release workflows now use a shared docker bake release action for `amd64` and `arm64`, with required `platform` input (`amd64|arm64`).
+* added two architecture-specific override files, `.env.amd64` and `.env.arm64`, for manual version overrides.
+* added new workflow to check version overrides in `.env.amd64` and `.env.arm64` files.
+* modified the compile workflow to run for both `amd64` and `arm64` architectures.
