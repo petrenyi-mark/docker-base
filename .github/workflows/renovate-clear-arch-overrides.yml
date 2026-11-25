@@ -18,29 +18,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-      - name: Import GPG key
-        # GPG private key, which is exported with armor (beginning: '-----BEGIN PGP PRIVATE KEY BLOCK-----') this entire content is encoded in base64, and it is loaded into the secrets content
-        # we decode the base64 encoded private key and load it
-        run: |
-          mkdir -p ~/.gnupg/
-          echo "${{ secrets.GPG_SIGNING_KEY_GITHUB_TECHUSER }}" | base64 --decode > ~/.gnupg/private.key
-          gpg --import ~/.gnupg/private.key
-      - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
-        with:
-          # The content is an SSH key in PEM format (beginning: '-----BEGIN RSA PRIVATE KEY-----')
-          key: ${{ secrets.SSH_PRIVATE_KEY_GITHUB_TECHUSER }}
-          name: id_rsa # optional
-          known_hosts: ${{ secrets.KNOWN_HOSTS }} # currently, its content is empty
-          # config: ${{ secrets.CONFIG }} # ssh_config; optional
-
       - name: Configure GIT for signed commit
         run: |
-          git config --global user.name "${{ env.TECH_USER_USERNAME }}"
-          git config --global user.email "${{ env.TECH_USER_EMAIL }}"
-          git config --global user.signingkey "${{ secrets.GPG_KEY_ID_GITHUB_TECHUSER }}"
-          git config --global commit.gpgsign true
-          git config --global tag.gpgSign true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Comment out active arch override lines
         id: clear
