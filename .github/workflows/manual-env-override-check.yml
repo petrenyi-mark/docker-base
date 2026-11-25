@@ -1,0 +1,36 @@
+name: Manual .env override check
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - ".env*"
+
+jobs:
+  manual-env-override-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ${{ github.event.ref }}
+        uses: actions/checkout@v4
+
+      - name: Check architecture override env files
+        continue-on-error: true
+        shell: bash
+        run: |
+          has_override=false
+          files=(.env.amd64 .env.arm64)
+
+          for file in "${files[@]}"; do
+            if [ -f "$file" ] && grep -Eq '^[[:space:]]*[^#[:space:]]' "$file"; then
+              echo "::warning file=$file::Manual override detected in $file (contains non-commented line)."
+              echo "- ⚠️Manual override detected in \`$file\`" >> "$GITHUB_STEP_SUMMARY"
+              has_override=true
+            fi
+          done
+
+          if [ "$has_override" = false ]; then
+            echo "- ✅ No manual architecture override found in \`.env.amd64\` or \`.env.arm64\`" >> "$GITHUB_STEP_SUMMARY"
+          else
+            exit 1
+          fi
+
